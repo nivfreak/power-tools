@@ -88,7 +88,7 @@ def get_download_versions(releases, qs):
 
 
 def get_upgrade_list(qs = None):
-    r = requests.get(TRENDS_DOMAIN + "/data/upgrade/versions/")
+    r = requests.get(TRENDS_DOMAIN + "/data/upgrade/versions/", verify=False)
     releases = json.loads(r.text)
     if qs is None:
         return releases
@@ -98,7 +98,7 @@ def get_upgrade_list(qs = None):
 
 def download_from_trends(qs):
     ####    Get list of releases  ####
-    r = requests.get(TRENDS_DOMAIN + "/data/upgrade/versions/")
+    r = requests.get(TRENDS_DOMAIN + "/data/upgrade/versions/", verify=False)
     releases = json.loads(r.text)
 
     release_exists = False
@@ -165,11 +165,11 @@ def download_from_trends(qs):
 def download_file(qimg, qs):
     log_print("Starting download of qimg file: %s" % qimg)
     rsp = requests.get(TRENDS_DOMAIN + "/data/upgrade/version/%s?access_code=%s" % \
-                    (qimg, qs.sharepass), allow_redirects=False)
+                    (qimg, qs.sharepass), allow_redirects=False, verify=False)
     if rsp.status_code == 404:
         print("Unable to download qimg file. Please check the --sharepass password.")
         sys.exit()
-    rsp = requests.get(rsp.headers["Location"], stream=True)
+    rsp = requests.get(rsp.headers["Location"], stream=True, verify=False)
     file_size = int(rsp.headers["content-length"])
     perc = int(file_size * 0.05)
     done_buckets = []
@@ -370,7 +370,7 @@ def test_downloads(from_version, to_version):
     qs = QSettings()
     qs.current_version = from_version
     qs.to_version = to_version
-    r = requests.get(TRENDS_DOMAIN + "/data/upgrade/versions/")
+    r = requests.get(TRENDS_DOMAIN + "/data/upgrade/versions/", verify=False)
     releases = json.loads(r.text)
     dvs = get_download_versions(releases, qs)
     print("downloads from: %s to: %s" % (from_version, to_version))
